@@ -7,8 +7,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.AppCompatSpinner
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,6 +22,8 @@ class MainFragment : Fragment() {
     private val viewModel: MainViewModel by viewModels()
 
     private lateinit var etCityName: AppCompatEditText
+    private lateinit var spinnerArchitectureType: AppCompatSpinner
+    private lateinit var spinnerReturnedDataType: AppCompatSpinner
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,43 +47,60 @@ class MainFragment : Fragment() {
 //            Log.d(TAG, "viewModel city name = ${viewModel.cityName}")
         }
 
-        rgDataTypeChooser.setOnCheckedChangeListener { _: RadioGroup?, checkedId: Int ->
-            when (checkedId) {
-                R.id.rbXML -> {
-//                    Log.d(TAG, "XML")
-                    viewModel.dataType = MainViewModel.XML
-                }
-                R.id.rbJson -> {
-//                    Log.d(TAG, "JSON")
-                    viewModel.dataType = MainViewModel.JSON
-                }
-                R.id.rbVolley -> {
-//                    Log.d(TAG, "VOLLEY")
-                    viewModel.dataType = MainViewModel.VOLLEY
-                }
-                else -> {
-                    viewModel.dataType = MainViewModel.NOUN
-                }
-            }
-            when (viewModel.dataType) {
-                MainViewModel.XML -> {
-                    Log.d(TAG, "XML")
-                }
-                MainViewModel.JSON -> {
-                    Log.d(TAG, "JSON")
-                }
-                MainViewModel.VOLLEY -> {
-                    Log.d(TAG, "VOLLEY")
-                }
-
-                else -> {
-                    Log.d(TAG, "NOUN")
-                }
-            }
-
+        spinnerArchitectureType = view.findViewById(R.id.spinnerArchitectureType)
+        ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            viewModel.architectureTypes
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinnerArchitectureType.adapter = adapter
         }
-    }
+        spinnerArchitectureType.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
 
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+//                    Log.d(TAG, (view as AppCompatTextView).text.toString())
+//                    Log.d(TAG, viewModel.architectureTypes[position])
+                    viewModel.architectureType = (view as AppCompatTextView).text.toString()
+//                    Log.d(TAG, "viewModel : ${viewModel.architectureType}")
+                }
+            }
+
+        spinnerReturnedDataType = view.findViewById(R.id.spinnerReturnedDataType)
+        ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            viewModel.dataTypes
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinnerReturnedDataType.adapter = adapter
+        }
+        spinnerReturnedDataType.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+//                    Log.d(TAG, (view as AppCompatTextView).text.toString())
+//                    Log.d(TAG, viewModel.architectureTypes[position])
+                    viewModel.dataType = viewModel.dataTypes[position]
+//                    Log.d(TAG, "viewModel : ${viewModel.dataType}")
+                }
+            }
+    }
 
     companion object {
         fun newInstance() = MainFragment()
