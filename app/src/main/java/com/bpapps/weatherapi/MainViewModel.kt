@@ -4,16 +4,18 @@ import androidx.lifecycle.ViewModel
 
 class MainViewModel : ViewModel() {
 
-    private val model = Model.instance
-
-    var cityName: String? = null
-    var architectureType: String = "ARCHITECTURE_TYPE_HTTP"
-    var dataType: String = "DATA_TYPE_JSON"
+    private val model = Model.getInstance()
 
     val architectureTypes: ArrayList<String> =
         arrayListOf("ARCHITECTURE_TYPE_HTTP", "ARCHITECTURE_TYPE_VOLLEY")
 
     val dataTypes: ArrayList<String> = arrayListOf("DATA_TYPE_JSON", "DATA_TYPE_XML")
+
+    var cityName: String? = null
+    var architectureType: String = architectureTypes[0]
+    var dataType: String = dataTypes[0]
+
+
 
     companion object {
         const val DATA_TYPE_JSON = 1

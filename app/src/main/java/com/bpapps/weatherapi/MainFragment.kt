@@ -44,7 +44,7 @@ class MainFragment : Fragment() {
         etCityName.addTextChangedListener { text: Editable? ->
 //            Log.d(TAG, text.toString())
             viewModel.cityName = text.toString()
-//            Log.d(TAG, "viewModel city name = ${viewModel.cityName}")
+            Log.d(TAG, "viewModel city name = ${viewModel.cityName}")
         }
 
         spinnerArchitectureType = view.findViewById(R.id.spinnerArchitectureType)
@@ -69,8 +69,8 @@ class MainFragment : Fragment() {
                 ) {
 //                    Log.d(TAG, (view as AppCompatTextView).text.toString())
 //                    Log.d(TAG, viewModel.architectureTypes[position])
-                    viewModel.architectureType = (view as AppCompatTextView).text.toString()
-//                    Log.d(TAG, "viewModel : ${viewModel.architectureType}")
+                    viewModel.architectureType = viewModel.architectureTypes[position]
+                    Log.d(TAG, "viewModel : ${viewModel.architectureType}")
                 }
             }
 
@@ -97,7 +97,7 @@ class MainFragment : Fragment() {
 //                    Log.d(TAG, (view as AppCompatTextView).text.toString())
 //                    Log.d(TAG, viewModel.architectureTypes[position])
                     viewModel.dataType = viewModel.dataTypes[position]
-//                    Log.d(TAG, "viewModel : ${viewModel.dataType}")
+                    Log.d(TAG, "viewModel : ${viewModel.dataType}")
                 }
             }
     }
