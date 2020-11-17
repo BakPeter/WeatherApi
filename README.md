@@ -1,0 +1,3 @@
+# WeatherApi
+
+https://openweathermap.org/
