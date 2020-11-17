@@ -1,6 +1,8 @@
 package com.bpapps.weatherapi
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
@@ -17,7 +19,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import kotlinx.android.synthetic.main.main_fragment.*
 
-class MainFragment : Fragment() {
+@SuppressLint("LongLogTag")
+class MainFragment : Fragment(), MainViewModel.IWebServiceRequest {
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -32,19 +35,19 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
-    @SuppressLint("LongLogTag")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         btnShowWeather.setOnClickListener {
-            Log.d(TAG, "text = ${etCityName.text.toString()}")
+//            Log.d(TAG, "text = ${etCityName.text.toString()}")
+            viewModel.getWeather()
         }
 
         etCityName = view.findViewById(R.id.etCityName)
         etCityName.addTextChangedListener { text: Editable? ->
 //            Log.d(TAG, text.toString())
             viewModel.cityName = text.toString()
-            Log.d(TAG, "viewModel city name = ${viewModel.cityName}")
+//            Log.d(TAG, "viewModel city name = ${viewModel.cityName}")
         }
 
         spinnerArchitectureType = view.findViewById(R.id.spinnerArchitectureType)
@@ -70,7 +73,7 @@ class MainFragment : Fragment() {
 //                    Log.d(TAG, (view as AppCompatTextView).text.toString())
 //                    Log.d(TAG, viewModel.architectureTypes[position])
                     viewModel.architectureType = viewModel.architectureTypes[position]
-                    Log.d(TAG, "viewModel : ${viewModel.architectureType}")
+//                    Log.d(TAG, "viewModel : ${viewModel.architectureType}")
                 }
             }
 
@@ -97,14 +100,52 @@ class MainFragment : Fragment() {
 //                    Log.d(TAG, (view as AppCompatTextView).text.toString())
 //                    Log.d(TAG, viewModel.architectureTypes[position])
                     viewModel.dataType = viewModel.dataTypes[position]
-                    Log.d(TAG, "viewModel : ${viewModel.dataType}")
+//                    Log.d(TAG, "viewModel : ${viewModel.dataType}")
                 }
             }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.registerForWbServiceRequest(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.unRegisterForWbServiceRequest()
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onResponseReceived(response: Response) {
+//        Log.d(TAG, "error = ${response.error?.message}, data = ${response.data}")
+        Log.d(TAG, response.toString())
+
+        response.error?.let { exception ->
+            AlertDialog.Builder(requireContext())
+                .setTitle("Error")
+                .setMessage(exception.message)
+                .setPositiveButton(
+                    "OK"
+                ) { dialogInterface, _ -> dialogInterface.dismiss() }
+                .create().also { alertDialog ->
+                    alertDialog.show()
+                }
+
+            return
+        }
+
+        Log.d(TAG, "Processing(displaying) web request result")
+
+        tvResultShower.text =
+            "${response.result!!.name} : ${response.result.weather[0].description}, ${response.result.main.temp}${resources.getString((R.string.degree))}C"
+        tvRowDataShower.text = "ROW DATA : '\n'${response.data}"
+
     }
 
     companion object {
         fun newInstance() = MainFragment()
 
-        private const val TAG = "TAG.com.bpapps.weatherapi"
+        private const val TAG = "TAG.com.bpapps.weatherapi.MainFragment"
     }
 }

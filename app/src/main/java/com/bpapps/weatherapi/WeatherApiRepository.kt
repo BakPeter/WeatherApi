@@ -1,7 +1,7 @@
 package com.bpapps.weatherapi
 
 class WeatherApiRepository private constructor() {
-
+    private val webServiceUtility: WebServicesApiUtility = WebServicesApiUtility()
 
     companion object {
         private var instance: WeatherApiRepository? = null
@@ -20,5 +20,22 @@ class WeatherApiRepository private constructor() {
 
             return instance!!
         }
+    }
+
+    fun processWebService(
+        parameters: RequestParameters,
+        callBack: IWebServiceRequest?
+    ) {
+        webServiceUtility.processWebService(
+            parameters,
+            object : WebServicesApiUtility.IWebServiceRequest {
+                override fun onResponseReceived(response: Response) {
+                    callBack?.onResponseReceived(response)
+                }
+            })
+    }
+
+    interface IWebServiceRequest {
+        fun onResponseReceived(response: Response)
     }
 }

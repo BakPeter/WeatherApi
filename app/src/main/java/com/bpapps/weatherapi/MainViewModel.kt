@@ -1,27 +1,58 @@
 package com.bpapps.weatherapi
 
+import android.annotation.SuppressLint
+import android.util.Log
+import android.view.Display
 import androidx.lifecycle.ViewModel
+import java.lang.Exception
 
+@SuppressLint("LongLogTag")
 class MainViewModel : ViewModel() {
 
     private val model = Model.getInstance()
 
+    private var webServiceRequestListener: IWebServiceRequest? = null
+
     val architectureTypes: ArrayList<String> =
-        arrayListOf("ARCHITECTURE_TYPE_HTTP", "ARCHITECTURE_TYPE_VOLLEY")
+        arrayListOf(
+            WebServicesApiUtility.ARCHITECTURE_TYPE_HTTP,
+            WebServicesApiUtility.ARCHITECTURE_TYPE_VOLLEY
+        )
+    val dataTypes: ArrayList<String> =
+        arrayListOf(WebServicesApiUtility.DATA_TYPE_JSON, WebServicesApiUtility.DATA_TYPE_XML)
 
-    val dataTypes: ArrayList<String> = arrayListOf("DATA_TYPE_JSON", "DATA_TYPE_XML")
-
-    var cityName: String? = null
+    var cityName: String = ""
     var architectureType: String = architectureTypes[0]
     var dataType: String = dataTypes[0]
 
-
+    fun getWeather() {
+//        Log.d(TAG, "Processing web service")
+        model.processWebService(
+            RequestParameters(
+                cityName,
+                architectureType,
+                dataType
+            ),
+            object : Model.IWebServiceRequest {
+                override fun onResponseReceived(response: Response) {
+                    webServiceRequestListener?.onResponseReceived(response)
+                }
+            })
+    }
 
     companion object {
-        const val DATA_TYPE_JSON = 1
-        const val DATA_TYPE_XML = 2
+        private const val TAG = "TAG.com.bpapps.weatherapi.MainViewModel"
+    }
 
-        const val ARCHITECTURE_TYPE_HTTP = 3
-        const val ARCHITECTURE_TYPE_VOLLEY = 4
+    fun registerForWbServiceRequest(callBack: IWebServiceRequest) {
+        webServiceRequestListener = callBack
+    }
+
+    fun unRegisterForWbServiceRequest() {
+        webServiceRequestListener = null
+    }
+
+    interface IWebServiceRequest {
+        fun onResponseReceived(response: Response)
     }
 }
