@@ -17,7 +17,7 @@ class Model private constructor() {
     private val repository = WeatherApiRepository.initialize()
 
     companion object {
-        val CITY_NOT_FOUND: Int = WeatherApiRepository.CITY_NOT_FOUND
+        const val CITY_NOT_FOUND: Int = WeatherApiRepository.CITY_NOT_FOUND
         private var instance: Model? = null
 
         fun getInstance(): Model {

@@ -1,11 +1,7 @@
 package com.bpapps.weatherapi
 
 import android.annotation.SuppressLint
-import android.util.Log
-import android.view.Display
 import androidx.lifecycle.ViewModel
-import kotlinx.android.synthetic.main.main_fragment.*
-import java.lang.Exception
 
 @SuppressLint("LongLogTag")
 class MainViewModel : ViewModel() {
@@ -42,7 +38,7 @@ class MainViewModel : ViewModel() {
             ),
             object : Model.IWebServiceRequest {
                 override fun onResponseReceived(response: Response) {
-                    tvRowDataShowerText = "ROW DATA : '\n'${response.data}"
+                    tvRowDataShowerText = "ROW DATA : '\n'${response.rowData}"
                     tvResultShowerText = if (response.result?.cod == Model.CITY_NOT_FOUND) {
 //                       "City not found"
                         response.result.message

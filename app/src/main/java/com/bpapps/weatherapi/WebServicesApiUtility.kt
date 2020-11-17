@@ -4,14 +4,13 @@ import android.annotation.SuppressLint
 import android.os.Looper
 import android.util.Log
 import androidx.core.os.HandlerCompat
+import com.android.volley.toolbox.Volley
 import com.google.gson.GsonBuilder
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.lang.Exception
-import java.lang.StringBuilder
 
 @SuppressLint("LongLogTag")
 class WebServicesApiUtility {
@@ -28,16 +27,6 @@ class WebServicesApiUtility {
                     Response(
                         null,
                         Exception("Enter valid city name"),
-                        parameters,
-                        null
-                    )
-                )
-            }
-            parameters.architectureType == "ARCHITECTURE_TYPE_VOLLEY" -> {
-                callBack?.onResponseReceived(
-                    Response(
-                        null,
-                        Exception("ARCHITECTURE_TYPE_VOLLEY is not implemented"),
                         parameters,
                         null
                     )
@@ -108,6 +97,58 @@ class WebServicesApiUtility {
                         }
                     }
                 })
+            }
+
+            parameters.architectureType == ARCHITECTURE_TYPE_VOLLEY -> {
+                when (parameters.dataType) {
+                    DATA_TYPE_JSON -> {
+                        val weatherForecastRequest =
+                            WeatherApiGsonRequest(
+                                apiUrlRequest,
+                                CityCurrentWeatherForecast::class.java,
+                                null,
+                                com.android.volley.Response.Listener { response ->
+                                    callBack?.onResponseReceived(
+                                        Response(
+                                            "Row data is unavailable for Volley",
+                                            null,
+                                            parameters,
+                                            response
+                                        )
+                                    )
+                                },
+                                com.android.volley.Response.ErrorListener { error ->
+                                    callBack?.onResponseReceived(
+                                        Response(
+                                            null,
+                                            Exception(error.cause.toString()),
+                                            parameters,
+                                            null
+                                        )
+                                    )
+
+                                })
+
+                        val queue = Volley.newRequestQueue(App.getInstance())
+                        queue.add(weatherForecastRequest)
+
+//                        val jsonObjectRequest =
+//                            JsonObjectRequest(
+//                                com.android.volley.Request.Method.GET,
+//                                apiUrlRequest,
+//                                null,
+//                                com.android.volley.Response.Listener { response ->
+//                                    val x = 1
+//                                },
+//                                com.android.volley.Response.ErrorListener { error ->
+//                                    val x = 1
+//                                }
+//                            )
+//                        val queue = Volley.newRequestQueue(App.getInstance())
+//
+//                        queue.add(jsonObjectRequest)
+                    }
+                }
             }
         }
     }
