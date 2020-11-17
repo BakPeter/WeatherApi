@@ -4,14 +4,21 @@ import android.annotation.SuppressLint
 import android.util.Log
 import android.view.Display
 import androidx.lifecycle.ViewModel
+import kotlinx.android.synthetic.main.main_fragment.*
 import java.lang.Exception
 
 @SuppressLint("LongLogTag")
 class MainViewModel : ViewModel() {
 
     private val model = Model.getInstance()
-
     private var webServiceRequestListener: IWebServiceRequest? = null
+
+    var tvResultShowerText: String = ""
+        private set
+
+    var tvRowDataShowerText: String = ""
+        private set
+
 
     val architectureTypes: ArrayList<String> =
         arrayListOf(
@@ -35,6 +42,14 @@ class MainViewModel : ViewModel() {
             ),
             object : Model.IWebServiceRequest {
                 override fun onResponseReceived(response: Response) {
+                    tvRowDataShowerText = "ROW DATA : '\n'${response.data}"
+                    tvResultShowerText = if (response.result?.cod == Model.CITY_NOT_FOUND) {
+//                       "City not found"
+                        response.result.message
+                    } else {
+                        "${response.result?.name} : ${response.result?.weather?.get(0)?.description}, ${response.result?.main?.temp}${App.getInstance()?.resources?.getString((R.string.degree))}C"
+                    }
+
                     webServiceRequestListener?.onResponseReceived(response)
                 }
             })

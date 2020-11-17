@@ -4,6 +4,8 @@ class WeatherApiRepository private constructor() {
     private val webServiceUtility: WebServicesApiUtility = WebServicesApiUtility()
 
     companion object {
+        const val CITY_NOT_FOUND: Int = WebServicesApiUtility.CITY_NOT_FOUND
+
         private var instance: WeatherApiRepository? = null
 
         fun initialize(): WeatherApiRepository {

@@ -3,11 +3,14 @@ package com.bpapps.weatherapi
 data class CityCurrentWeatherForecast(
     val name: String,
     val coord: Coord,
-    val weather: ArrayList<Weather> ,
+    val weather: ArrayList<Weather>,
     val base: String,
     val main: Main,
     val visibility: Int,
-    val wind: Wind
+    val wind: Wind,
+    val cod: Int,
+    val sys: Sys,
+    val message: String
 )
 
 data class Wind(val speed: Double, val deg: Double)
@@ -22,3 +25,4 @@ data class Main(
 
 data class Weather(val id: Int, val main: String, val description: String, val icon: String)
 data class Coord(val lon: Double, val lat: Double)
+data class Sys(val message: String)

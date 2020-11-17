@@ -136,10 +136,8 @@ class MainFragment : Fragment(), MainViewModel.IWebServiceRequest {
         }
 
         Log.d(TAG, "Processing(displaying) web request result")
-
-        tvResultShower.text =
-            "${response.result!!.name} : ${response.result.weather[0].description}, ${response.result.main.temp}${resources.getString((R.string.degree))}C"
-        tvRowDataShower.text = "ROW DATA : '\n'${response.data}"
+        tvResultShower.text = viewModel.tvResultShowerText
+        tvRowDataShower.text = viewModel.tvRowDataShowerText
 
     }
 

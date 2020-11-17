@@ -55,7 +55,7 @@ class WebServicesApiUtility {
                 )
             }
 
-            else -> {
+            parameters.architectureType == ARCHITECTURE_TYPE_HTTP -> {
                 val request = Request.Builder().url(apiUrlRequest).build()
 
                 val client = OkHttpClient()
@@ -79,9 +79,19 @@ class WebServicesApiUtility {
                         val body = response.body?.string()
                         Log.d(TAG, body!!)
 
-                        val gson = GsonBuilder().create()
-                        val weatherForecast =
-                            gson.fromJson(body, CityCurrentWeatherForecast::class.java)
+                        var weatherForecast: CityCurrentWeatherForecast? = null
+
+                        when (parameters.dataType) {
+                            DATA_TYPE_JSON -> {
+                                val gson = GsonBuilder().create()
+                                weatherForecast =
+                                    gson.fromJson(body, CityCurrentWeatherForecast::class.java)
+                            }
+                            else -> {
+                                //DATA_TYPE_XML ->
+
+                            }
+                        }
 
                         Log.d(TAG, weatherForecast.toString())
                         HandlerCompat.createAsync(Looper.getMainLooper()).also { handler ->
@@ -98,8 +108,6 @@ class WebServicesApiUtility {
                         }
                     }
                 })
-
-//                callBack?.onResponseReceived(Response("API_KEY = $API_KEY}", null, parameters))
             }
         }
     }
@@ -138,6 +146,8 @@ class WebServicesApiUtility {
 
         const val ARCHITECTURE_TYPE_HTTP = "ARCHITECTURE_TYPE_HTTP"
         const val ARCHITECTURE_TYPE_VOLLEY = "ARCHITECTURE_TYPE_VOLLEY"
+
+        const val CITY_NOT_FOUND = 404
     }
 
     interface IWebServiceRequest {
