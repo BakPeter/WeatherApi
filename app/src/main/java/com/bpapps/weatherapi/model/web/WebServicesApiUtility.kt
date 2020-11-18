@@ -4,20 +4,16 @@ import android.annotation.SuppressLint
 import android.os.Looper
 import android.util.Log
 import androidx.core.os.HandlerCompat
+import com.android.volley.toolbox.HttpHeaderParser
 import com.android.volley.toolbox.Volley
 import com.bpapps.weatherapi.App
-import com.bpapps.weatherapi.model.dataclasses.CityCurrentWeatherForecast
-import com.bpapps.weatherapi.model.dataclasses.CityCurrentWeatherForecastJson
-import com.bpapps.weatherapi.model.dataclasses.RequestParameters
-import com.bpapps.weatherapi.model.dataclasses.Response
+import com.bpapps.weatherapi.model.dataclasses.*
 import com.google.gson.GsonBuilder
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.io.InputStream
 
 @SuppressLint("LongLogTag")
 class WebServicesApiUtility {
@@ -75,7 +71,6 @@ class WebServicesApiUtility {
                                 //DATA_TYPE_XML ->
                                 //         Log.d(TAG, response.toString())
                                 val inputStream = body.byteInputStream()
-//                                val inputStream = ByteArrayInputStream(response.body!!.byteStream().readBytes())
                                 WeatherApiXmlParser().parse(inputStream)
                             }
                         }
@@ -99,7 +94,7 @@ class WebServicesApiUtility {
             parameters.architectureType == ARCHITECTURE_TYPE_VOLLEY -> {
                 when (parameters.dataType) {
                     DATA_TYPE_JSON -> {
-                        val weatherForecastRequest =
+                        val weatherForecastGsonRequest =
                             WeatherApiGsonRequest(
                                 apiUrlRequest,
                                 CityCurrentWeatherForecastJson::class.java,
@@ -146,34 +141,55 @@ class WebServicesApiUtility {
                                 })
 
                         val queue = Volley.newRequestQueue(App.getInstance())
-                        queue.add(weatherForecastRequest)
-
-//                        val jsonObjectRequest =
-//                            JsonObjectRequest(
-//                                com.android.volley.Request.Method.GET,
-//                                apiUrlRequest,
-//                                null,
-//                                com.android.volley.Response.Listener { response ->
-//                                    val x = 1
-//                                },
-//                                com.android.volley.Response.ErrorListener { error ->
-//                                    val x = 1
-//                                }
-//                            )
-//                        val queue = Volley.newRequestQueue(App.getInstance())
-//
-//                        queue.add(jsonObjectRequest)
+                        queue.add(weatherForecastGsonRequest)
                     }
 
                     DATA_TYPE_XML -> {
-                        callBack?.onResponseReceived(
-                            Response(
+                        //TODO(continue here)
+                        val weatherForecastXMLRequest =
+                            WeatherApiXMLRequest(
+                                apiUrlRequest,
+                                CityCurrentWeatherForecastXml::class.java,
                                 null,
-                                Exception("DATA_TYPE_XML is not implemented"),
-                                parameters,
-                                null
-                            )
-                        )
+                                com.android.volley.Response.Listener { response ->
+                                    callBack?.onResponseReceived(
+                                        Response(
+                                            "Row data is unavailable for Volley",
+                                            null,
+                                            parameters,
+                                            response
+                                        )
+                                    )
+                                },
+                                com.android.volley.Response.ErrorListener { error ->
+                                    //TODO(continue here - error 404, implement for xml)
+                                    if (error?.networkResponse?.statusCode == 404) {
+                                        val inputStream = error.networkResponse.data.inputStream()
+                                        val parser = WeatherApiXmlParser()
+                                        val weatherForecast = parser.parse(inputStream!!)
+
+                                        callBack?.onResponseReceived(
+                                            Response(
+                                                "Row data is unavailable for Volley",
+                                                null,
+                                                parameters,
+                                                weatherForecast
+                                            )
+                                        )
+                                    } else {
+                                        callBack?.onResponseReceived(
+                                            Response(
+                                                null,
+                                                Exception(error.message),
+                                                parameters,
+                                                null
+                                            )
+                                        )
+                                    }
+                                })
+
+                        val queue = Volley.newRequestQueue(App.getInstance())
+                        queue.add(weatherForecastXMLRequest)
                     }
                 }
             }

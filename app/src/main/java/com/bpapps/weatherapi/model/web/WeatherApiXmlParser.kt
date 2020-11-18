@@ -4,14 +4,14 @@ import android.util.Xml
 import com.bpapps.weatherapi.model.dataclasses.*
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
+import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 
 private val ns: String? = null
 
 class WeatherApiXmlParser {
-
-    fun parse(inputStream: InputStream): CityCurrentWeatherForecast {
+    fun parse(inputStream: ByteArrayInputStream): CityCurrentWeatherForecast {
         inputStream.use {
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
@@ -38,6 +38,7 @@ class WeatherApiXmlParser {
                             WebServicesApiUtility.CITY_XML_ATTRIBUTE_NAME
                         )
                     }
+
                     WebServicesApiUtility.TEMPERATURE_XML_TAG -> {
                         temperature = parser.getAttributeValue(
                             null,
@@ -45,6 +46,7 @@ class WeatherApiXmlParser {
                         )
 
                     }
+
                     WebServicesApiUtility.WEATHER_XML_TAG -> {
                         weatherDescription = parser.getAttributeValue(
                             null,
@@ -52,11 +54,11 @@ class WeatherApiXmlParser {
                         )
                     }
 
-                    WebServicesApiUtility.COD_XML_TAG ->{
+                    WebServicesApiUtility.COD_XML_TAG -> {
                         cod = parser.nextText()
                     }
 
-                    WebServicesApiUtility.MESSAGE_XML_ATTRIBUTE_VALUE ->{
+                    WebServicesApiUtility.MESSAGE_XML_ATTRIBUTE_VALUE -> {
                         message = parser.nextText()
                     }
                 }
