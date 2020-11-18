@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import com.bpapps.weatherapi.*
 import com.bpapps.weatherapi.model.Model
+import com.bpapps.weatherapi.model.dataclasses.CityCurrentWeatherForecastJson
+import com.bpapps.weatherapi.model.dataclasses.CityCurrentWeatherForecastXml
 import com.bpapps.weatherapi.model.dataclasses.RequestParameters
 import com.bpapps.weatherapi.model.dataclasses.Response
 import com.bpapps.weatherapi.model.web.WebServicesApiUtility
@@ -47,12 +49,31 @@ class MainViewModel : ViewModel() {
             object : Model.IWebServiceRequest {
                 override fun onResponseReceived(response: Response) {
                     tvRowDataShowerText = "ROW DATA : '\n'${response.rowData}"
-                    tvResultShowerText = if (response.result?.cod == Model.CITY_NOT_FOUND) {
-//                       "City not found"
-                        response.result.message
+
+                    if (response.requestParameters.dataType == WebServicesApiUtility.DATA_TYPE_JSON) {
+                        val result = response.result as CityCurrentWeatherForecastJson
+                        tvResultShowerText = if (result.cod == Model.CITY_NOT_FOUND) {
+                            result.message
+                        } else {
+                            "${result.name} : ${result.weather[0].description}, ${result.main.temp}${
+                                App.getInstance()?.resources?.getString(
+                                    (R.string.degree)
+                                )
+                            }C"
+                        }
                     } else {
-                        "${response.result?.name} : ${response.result?.weather?.get(0)?.description}, ${response.result?.main?.temp}${App.getInstance()?.resources?.getString((R.string.degree))}C"
+                        val result = response.result as CityCurrentWeatherForecastXml
+                        tvResultShowerText = if (result.cod == Model.CITY_NOT_FOUND) {
+                            result.message
+                        } else {
+                            "${result.city.name} : ${result.weather.value}, ${result.temperature.value}${
+                                App.getInstance()?.resources?.getString(
+                                    (R.string.degree)
+                                )
+                            }C"
+                        }
                     }
+
 
                     webServiceRequestListener?.onResponseReceived(response)
                 }

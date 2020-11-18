@@ -7,6 +7,7 @@ import androidx.core.os.HandlerCompat
 import com.android.volley.toolbox.Volley
 import com.bpapps.weatherapi.App
 import com.bpapps.weatherapi.model.dataclasses.CityCurrentWeatherForecast
+import com.bpapps.weatherapi.model.dataclasses.CityCurrentWeatherForecastJson
 import com.bpapps.weatherapi.model.dataclasses.RequestParameters
 import com.bpapps.weatherapi.model.dataclasses.Response
 import com.google.gson.GsonBuilder
@@ -14,7 +15,9 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.ByteArrayInputStream
 import java.io.IOException
+import java.io.InputStream
 
 @SuppressLint("LongLogTag")
 class WebServicesApiUtility {
@@ -66,12 +69,14 @@ class WebServicesApiUtility {
                         weatherForecast = when (parameters.dataType) {
                             DATA_TYPE_JSON -> {
                                 val gson = GsonBuilder().create()
-                                gson.fromJson(body, CityCurrentWeatherForecast::class.java)
+                                gson.fromJson(body, CityCurrentWeatherForecastJson::class.java)
                             }
                             else -> {
-                                val x = 1
                                 //DATA_TYPE_XML ->
-                                WeatherApiXmlParser().parse(response.body!!.byteStream())
+                                //         Log.d(TAG, response.toString())
+                                val inputStream = body.byteInputStream()
+//                                val inputStream = ByteArrayInputStream(response.body!!.byteStream().readBytes())
+                                WeatherApiXmlParser().parse(inputStream)
                             }
                         }
 
@@ -97,7 +102,7 @@ class WebServicesApiUtility {
                         val weatherForecastRequest =
                             WeatherApiGsonRequest(
                                 apiUrlRequest,
-                                CityCurrentWeatherForecast::class.java,
+                                CityCurrentWeatherForecastJson::class.java,
                                 null,
                                 com.android.volley.Response.Listener { response ->
                                     callBack?.onResponseReceived(
@@ -117,7 +122,7 @@ class WebServicesApiUtility {
                                         )
                                         val weatherForecast =
                                             gson.fromJson(
-                                                json, CityCurrentWeatherForecast::class.java
+                                                json, CityCurrentWeatherForecastJson::class.java
                                             )
 
                                         callBack?.onResponseReceived(
@@ -203,6 +208,15 @@ class WebServicesApiUtility {
         private const val UNITS_METRIC = "metric"
         private const val MODE_XML = "xml"
         private const val MODE_JSON = "json"
+
+        const val CITY_XML_TAG = "city"
+        const val CITY_XML_ATTRIBUTE_NAME = "name"
+        const val TEMPERATURE_XML_TAG = "temperature"
+        const val TEMPERATURE_XML_ATTRIBUTE_VALUE = "value"
+        const val WEATHER_XML_TAG = "weather"
+        const val WEATHER_XML_ATTRIBUTE_VALUE = "value"
+        const val COD_XML_TAG = "cod"
+        const val MESSAGE_XML_ATTRIBUTE_VALUE = "message"
 
         const val DATA_TYPE_JSON = "DATA_TYPE_JSON"
         const val DATA_TYPE_XML = "DATA_TYPE_XML"
