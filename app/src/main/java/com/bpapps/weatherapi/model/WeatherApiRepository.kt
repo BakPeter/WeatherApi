@@ -1,7 +1,12 @@
-package com.bpapps.weatherapi
+package com.bpapps.weatherapi.model
+
+import com.bpapps.weatherapi.model.dataclasses.RequestParameters
+import com.bpapps.weatherapi.model.dataclasses.Response
+import com.bpapps.weatherapi.model.web.WebServicesApiUtility
 
 class WeatherApiRepository private constructor() {
-    private val webServiceUtility: WebServicesApiUtility = WebServicesApiUtility()
+    private val webServiceUtility: WebServicesApiUtility =
+        WebServicesApiUtility()
 
     companion object {
         const val CITY_NOT_FOUND: Int = WebServicesApiUtility.CITY_NOT_FOUND
@@ -10,7 +15,8 @@ class WeatherApiRepository private constructor() {
 
         fun initialize(): WeatherApiRepository {
             if (instance == null) {
-                instance = WeatherApiRepository()
+                instance =
+                    WeatherApiRepository()
             }
 
             return instance!!

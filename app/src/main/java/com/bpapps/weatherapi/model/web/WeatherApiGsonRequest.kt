@@ -1,4 +1,4 @@
-package com.bpapps.weatherapi
+package com.bpapps.weatherapi.model.web
 
 import com.android.volley.NetworkResponse
 import com.android.volley.ParseError

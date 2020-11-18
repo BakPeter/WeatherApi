@@ -1,10 +1,14 @@
-package com.bpapps.weatherapi
+package com.bpapps.weatherapi.model.web
 
 import android.annotation.SuppressLint
 import android.os.Looper
 import android.util.Log
 import androidx.core.os.HandlerCompat
 import com.android.volley.toolbox.Volley
+import com.bpapps.weatherapi.App
+import com.bpapps.weatherapi.model.dataclasses.CityCurrentWeatherForecast
+import com.bpapps.weatherapi.model.dataclasses.RequestParameters
+import com.bpapps.weatherapi.model.dataclasses.Response
 import com.google.gson.GsonBuilder
 import okhttp3.Call
 import okhttp3.Callback
@@ -27,17 +31,6 @@ class WebServicesApiUtility {
                     Response(
                         null,
                         Exception("Enter valid city name"),
-                        parameters,
-                        null
-                    )
-                )
-            }
-
-            parameters.dataType == "DATA_TYPE_XML" -> {
-                callBack?.onResponseReceived(
-                    Response(
-                        null,
-                        Exception("DATA_TYPE_XML is not implemented"),
                         parameters,
                         null
                     )
@@ -70,19 +63,18 @@ class WebServicesApiUtility {
 
                         var weatherForecast: CityCurrentWeatherForecast? = null
 
-                        when (parameters.dataType) {
+                        weatherForecast = when (parameters.dataType) {
                             DATA_TYPE_JSON -> {
                                 val gson = GsonBuilder().create()
-                                weatherForecast =
-                                    gson.fromJson(body, CityCurrentWeatherForecast::class.java)
+                                gson.fromJson(body, CityCurrentWeatherForecast::class.java)
                             }
                             else -> {
+                                val x = 1
                                 //DATA_TYPE_XML ->
-
+                                WeatherApiXmlParser().parse(response.body!!.byteStream())
                             }
                         }
 
-                        Log.d(TAG, weatherForecast.toString())
                         HandlerCompat.createAsync(Looper.getMainLooper()).also { handler ->
                             handler.post {
                                 callBack?.onResponseReceived(
@@ -118,15 +110,34 @@ class WebServicesApiUtility {
                                     )
                                 },
                                 com.android.volley.Response.ErrorListener { error ->
-                                    callBack?.onResponseReceived(
-                                        Response(
-                                            null,
-                                            Exception(error.cause.toString()),
-                                            parameters,
-                                            null
+                                    if (error?.networkResponse?.statusCode == 404) {
+                                        val gson = GsonBuilder().create()
+                                        val json = String(
+                                            error.networkResponse.data.toTypedArray().toByteArray()
                                         )
-                                    )
+                                        val weatherForecast =
+                                            gson.fromJson(
+                                                json, CityCurrentWeatherForecast::class.java
+                                            )
 
+                                        callBack?.onResponseReceived(
+                                            Response(
+                                                json,
+                                                null,
+                                                parameters,
+                                                weatherForecast
+                                            )
+                                        )
+                                    } else {
+                                        callBack?.onResponseReceived(
+                                            Response(
+                                                null,
+                                                Exception(error.message),
+                                                parameters,
+                                                null
+                                            )
+                                        )
+                                    }
                                 })
 
                         val queue = Volley.newRequestQueue(App.getInstance())
@@ -148,6 +159,17 @@ class WebServicesApiUtility {
 //
 //                        queue.add(jsonObjectRequest)
                     }
+
+                    DATA_TYPE_XML -> {
+                        callBack?.onResponseReceived(
+                            Response(
+                                null,
+                                Exception("DATA_TYPE_XML is not implemented"),
+                                parameters,
+                                null
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -155,22 +177,22 @@ class WebServicesApiUtility {
 
     private fun getApiUrl(parameters: RequestParameters): String {
         val urlBuilder = StringBuilder(URL)
-        urlBuilder.append("${Q}=${parameters.cityName}")
-        urlBuilder.append("&${APP_ID}=${API_KEY}")
+        urlBuilder.append("$Q=${parameters.cityName}")
+        urlBuilder.append("&$APP_ID=$API_KEY")
 
         if (parameters.dataType == DATA_TYPE_JSON) {
-            urlBuilder.append("&${MODE}=${MODE_JSON}")
+            urlBuilder.append("&$MODE=$MODE_JSON")
         } else if (parameters.dataType == DATA_TYPE_XML) {
-            urlBuilder.append("&${MODE}=${MODE_XML}")
+            urlBuilder.append("&$MODE=$MODE_XML")
         }
 
-        urlBuilder.append("&${UNITS}=${UNITS_METRIC}")
+        urlBuilder.append("&$UNITS=$UNITS_METRIC")
 
         return urlBuilder.toString()
     }
 
     companion object {
-        private const val TAG = "TAG.com.bpapps.weatherapi.WebServicesApiUtility"
+        private const val TAG = "TAG.com.bpapps.weatherapi.model.web.WebServicesApiUtility"
 
         private const val API_KEY = "e97176925ceb0c56da4abf8c7905f255"
         private const val URL = "https://api.openweathermap.org/data/2.5/weather?"

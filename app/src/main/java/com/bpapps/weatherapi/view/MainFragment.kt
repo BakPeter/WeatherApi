@@ -1,8 +1,7 @@
-package com.bpapps.weatherapi
+package com.bpapps.weatherapi.view
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
@@ -13,10 +12,12 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.bpapps.weatherapi.R
+import com.bpapps.weatherapi.model.dataclasses.Response
+import com.bpapps.weatherapi.viewmodel.MainViewModel
 import kotlinx.android.synthetic.main.main_fragment.*
 
 @SuppressLint("LongLogTag")
@@ -144,6 +145,6 @@ class MainFragment : Fragment(), MainViewModel.IWebServiceRequest {
     companion object {
         fun newInstance() = MainFragment()
 
-        private const val TAG = "TAG.com.bpapps.weatherapi.MainFragment"
+        private const val TAG = "TAG.com.bpapps.weatherapi.view.MainFragment"
     }
 }

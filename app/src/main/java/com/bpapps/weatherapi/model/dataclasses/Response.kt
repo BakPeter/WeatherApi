@@ -1,6 +1,4 @@
-package com.bpapps.weatherapi
-
-import android.app.DownloadManager
+package com.bpapps.weatherapi.model.dataclasses
 
 data class Response(
     val rowData: String?,

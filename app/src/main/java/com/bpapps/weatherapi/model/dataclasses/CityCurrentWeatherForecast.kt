@@ -1,4 +1,4 @@
-package com.bpapps.weatherapi
+package com.bpapps.weatherapi.model.dataclasses
 
 data class CityCurrentWeatherForecast(
     val name: String,

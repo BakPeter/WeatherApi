@@ -1,7 +1,12 @@
-package com.bpapps.weatherapi
+package com.bpapps.weatherapi.viewmodel
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
+import com.bpapps.weatherapi.*
+import com.bpapps.weatherapi.model.Model
+import com.bpapps.weatherapi.model.dataclasses.RequestParameters
+import com.bpapps.weatherapi.model.dataclasses.Response
+import com.bpapps.weatherapi.model.web.WebServicesApiUtility
 
 @SuppressLint("LongLogTag")
 class MainViewModel : ViewModel() {
@@ -22,7 +27,10 @@ class MainViewModel : ViewModel() {
             WebServicesApiUtility.ARCHITECTURE_TYPE_VOLLEY
         )
     val dataTypes: ArrayList<String> =
-        arrayListOf(WebServicesApiUtility.DATA_TYPE_JSON, WebServicesApiUtility.DATA_TYPE_XML)
+        arrayListOf(
+            WebServicesApiUtility.DATA_TYPE_JSON,
+            WebServicesApiUtility.DATA_TYPE_XML
+        )
 
     var cityName: String = ""
     var architectureType: String = architectureTypes[0]
@@ -52,7 +60,7 @@ class MainViewModel : ViewModel() {
     }
 
     companion object {
-        private const val TAG = "TAG.com.bpapps.weatherapi.MainViewModel"
+        private const val TAG = "TAG.com.bpapps.weatherapi.viewmodel.MainViewModel"
     }
 
     fun registerForWbServiceRequest(callBack: IWebServiceRequest) {
